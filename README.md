@@ -121,6 +121,12 @@ All text is in `app/src/main/res/values/strings.xml`. To add Telugu or Hindi lat
 ./gradlew :rules-engine:test
 ```
 
+Render the screens to PNG (saved in `app/screenshots/`, no phone needed):
+
+```bash
+./gradlew :app:testDebugUnitTest -Proborazzi.record=true
+```
+
 ## 6. Test checklist on a real phone
 
 Tip: in Settings, set first call = 1 min and repeat call = 1 min to test quickly. Use a friend's phone.

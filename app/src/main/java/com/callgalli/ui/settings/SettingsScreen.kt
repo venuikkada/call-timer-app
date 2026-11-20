@@ -15,6 +15,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.BatteryChargingFull
+import androidx.compose.material.icons.outlined.PhoneAndroid
+import androidx.compose.material.icons.outlined.Palette
+import androidx.compose.material.icons.outlined.NotificationsActive
+import androidx.compose.material.icons.outlined.Update
+import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.DeleteForever
 import androidx.compose.material.icons.outlined.Remove
@@ -24,6 +31,11 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.FilledTonalIconButton
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
@@ -103,7 +115,7 @@ fun SettingsScreen(
         verticalArrangement = Arrangement.spacedBy(Spacing.m),
     ) {
         item {
-            SectionCard(title = stringResource(R.string.settings_limits)) {
+            SectionCard(title = stringResource(R.string.settings_limits), icon = Icons.Outlined.Timer) {
                 Stepper(
                     label = stringResource(R.string.settings_first_call),
                     value = stringResource(R.string.unit_minutes_short, rules.firstCallMinutes),
@@ -120,7 +132,7 @@ fun SettingsScreen(
             }
         }
         item {
-            SectionCard(title = stringResource(R.string.settings_reset_time)) {
+            SectionCard(title = stringResource(R.string.settings_reset_time), icon = Icons.Outlined.Update) {
                 Row(
                     Modifier.fillMaxWidth().heightIn(min = 48.dp).clickable { showTimePicker = true },
                     verticalAlignment = Alignment.CenterVertically,
@@ -131,7 +143,7 @@ fun SettingsScreen(
             }
         }
         item {
-            SectionCard(title = stringResource(R.string.settings_warnings)) {
+            SectionCard(title = stringResource(R.string.settings_warnings), icon = Icons.Outlined.NotificationsActive) {
                 Stepper(
                     label = stringResource(R.string.settings_first_warning),
                     value = stringResource(R.string.unit_seconds_short, rules.firstWarningSeconds),
@@ -147,19 +159,15 @@ fun SettingsScreen(
             }
         }
         item {
-            SectionCard(title = stringResource(R.string.settings_appearance)) {
-                listOf(
-                    ThemeMode.SYSTEM to R.string.theme_system,
-                    ThemeMode.LIGHT to R.string.theme_light,
-                    ThemeMode.DARK to R.string.theme_dark,
-                ).forEach { (mode, label) ->
-                    Row(
-                        Modifier.fillMaxWidth().heightIn(min = 48.dp)
-                            .selectable(selected = settings.theme == mode, onClick = { vm.setTheme(mode) }, role = Role.RadioButton),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        RadioButton(selected = settings.theme == mode, onClick = null)
-                        Text(stringResource(label), style = MaterialTheme.typography.bodyLarge, modifier = Modifier.padding(start = Spacing.m))
+            SectionCard(title = stringResource(R.string.settings_appearance), icon = Icons.Outlined.Palette) {
+                val modes = listOf(ThemeMode.SYSTEM to R.string.theme_system, ThemeMode.LIGHT to R.string.theme_light, ThemeMode.DARK to R.string.theme_dark)
+                SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
+                    modes.forEachIndexed { i, (mode, label) ->
+                        SegmentedButton(
+                            selected = settings.theme == mode,
+                            onClick = { vm.setTheme(mode) },
+                            shape = SegmentedButtonDefaults.itemShape(i, modes.size),
+                        ) { Text(stringResource(label), maxLines = 1) }
                     }
                 }
                 Row(Modifier.fillMaxWidth().heightIn(min = 48.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -169,7 +177,7 @@ fun SettingsScreen(
             }
         }
         item {
-            SectionCard(title = stringResource(R.string.settings_phone_setup)) {
+            SectionCard(title = stringResource(R.string.settings_phone_setup), icon = Icons.Outlined.PhoneAndroid) {
                 Text(stringResource(R.string.setup_keep_your_dialer), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 StatusRow(stringResource(R.string.setup_call_permissions), callPermsOk) {
                     permissionLauncher.launch(Setup.CALL_PERMISSIONS)
@@ -181,7 +189,7 @@ fun SettingsScreen(
             }
         }
         item {
-            SectionCard(title = stringResource(R.string.battery_title)) {
+            SectionCard(title = stringResource(R.string.battery_title), icon = Icons.Outlined.BatteryChargingFull) {
                 StatusRow(stringResource(R.string.battery_saver_off), !powerSave) { BatteryHelper.openBatterySaver(context) }
                 StatusRow(stringResource(R.string.battery_unrestricted), !optimized) { BatteryHelper.openBatterySettings(context) }
                 val oemHint = when (BatteryHelper.oem()) {
@@ -198,7 +206,7 @@ fun SettingsScreen(
             }
         }
         item {
-            SectionCard(title = stringResource(R.string.about_title)) {
+            SectionCard(title = stringResource(R.string.about_title), icon = Icons.Outlined.Info) {
                 Row(Modifier.fillMaxWidth().heightIn(min = 48.dp), verticalAlignment = Alignment.CenterVertically) {
                     Text(stringResource(R.string.app_name), style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
                     Text(stringResource(R.string.about_version) + " " + appVersion(context), style = MaterialTheme.typography.bodyMedium)
@@ -242,9 +250,9 @@ private fun appVersion(context: android.content.Context): String =
 private fun Stepper(label: String, value: String, onMinus: () -> Unit, onPlus: () -> Unit) {
     Row(Modifier.fillMaxWidth().heightIn(min = 56.dp), verticalAlignment = Alignment.CenterVertically) {
         Text(label, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
-        IconButton(onClick = onMinus) { Icon(Icons.Outlined.Remove, contentDescription = stringResource(R.string.action_decrease, label)) }
-        Text(value, style = MaterialTheme.typography.titleMedium, textAlign = TextAlign.Center, modifier = Modifier.widthIn(min = 64.dp))
-        IconButton(onClick = onPlus) { Icon(Icons.Outlined.Add, contentDescription = stringResource(R.string.action_increase, label)) }
+        FilledTonalIconButton(onClick = onMinus) { Icon(Icons.Outlined.Remove, contentDescription = stringResource(R.string.action_decrease, label)) }
+        Text(value, style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold), textAlign = TextAlign.Center, modifier = Modifier.widthIn(min = 72.dp))
+        FilledTonalIconButton(onClick = onPlus) { Icon(Icons.Outlined.Add, contentDescription = stringResource(R.string.action_increase, label)) }
     }
 }
 

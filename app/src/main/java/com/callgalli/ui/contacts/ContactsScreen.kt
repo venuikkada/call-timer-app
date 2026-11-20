@@ -44,7 +44,11 @@ import com.callgalli.data.SettingsStore
 import com.callgalli.ui.AppViewModelFactory
 import com.callgalli.ui.ContactRow
 import com.callgalli.ui.ContactsViewModel
+import com.callgalli.ui.components.Avatar
 import com.callgalli.ui.components.BigButton
+import com.callgalli.ui.components.stageTint
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.width
 import com.callgalli.ui.components.ConfirmDialog
 import com.callgalli.ui.components.EmptyState
 import com.callgalli.ui.components.StatusChip
@@ -112,6 +116,8 @@ fun ContactsScreen(
                         .padding(horizontal = Spacing.m, vertical = Spacing.s),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
+                    Avatar(row.name, row.number, if (row.alwaysAllowed) MaterialTheme.colorScheme.primary else stageTint(row.stage))
+                    Spacer(Modifier.width(14.dp))
                     Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
                         Text(row.name ?: formatNumber(row.number), style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
                         if (row.name != null) Text(formatNumber(row.number), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)

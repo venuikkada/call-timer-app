@@ -66,12 +66,29 @@
     <string name="home_calls_taken">Calls taken</string>
     <string name="home_talk_time">Talk time</string>
     <string name="home_calls_blocked">Calls blocked</string>
-    <string name="home_minutes_saved">Minutes saved</string>
+    <string name="home_minutes_saved">Mins saved</string>
     <string name="home_active_now">Active now</string>
     <string name="home_numbers_today">Numbers used today</string>
     <string name="home_no_numbers">No calls yet today.</string>
     <string name="home_number_detail">%1$d answered · %2$s · %3$d blocked</string>
-    <string name="home_setup_title">Setup not finished</string>
+    <string name="home_setup_title">Finish setup</string>
+    <string name="home_setup_progress">%1$d of %2$d done</string>
+    <string name="home_no_numbers_sub">Numbers you talk to today will show here.</string>
+    <string name="setup_call_permissions_sub">Needed to time and end calls</string>
+    <string name="setup_overlay_sub">Floating timer on your call screen</string>
+    <string name="setup_notifications_sub">Warnings and time left</string>
+    <string name="setup_battery_sub">So calls are cut on time</string>
+    <string name="greeting_morning">Good morning</string>
+    <string name="greeting_afternoon">Good afternoon</string>
+    <string name="greeting_evening">Good evening</string>
+    <string name="hero_watching">Watching calls</string>
+    <string name="hero_setup_needed">Setup needed</string>
+    <string name="hero_summary">Today: %1$d calls · %2$s talk time</string>
+    <string name="hero_rule_first">1st: %1$d min</string>
+    <string name="hero_rule_repeat">2nd: %1$d min</string>
+    <string name="hero_rule_reset">Reset: %1$s</string>
+    <string name="ring_left">left</string>
+    <string name="ring_always_allowed">no limit</string>
     <string name="home_setup_body">Allow the call permissions so Call Timer can see your calls and end them when time is up. You keep using your normal phone app.</string>
 
     <!-- Contacts & Rules -->
@@ -107,8 +124,8 @@
     <string name="outcome_in_progress">On call now</string>
 
     <!-- Always Allowed -->
-    <string name="allowed_intro">These numbers are never timed or blocked.</string>
-    <string name="allowed_emergency_title">Emergency numbers (always allowed)</string>
+    <string name="allowed_intro">These numbers are never timed or blocked. Emergency numbers are locked.</string>
+    <string name="allowed_emergency_title">Emergency numbers</string>
     <string name="allowed_locked">Locked</string>
     <string name="allowed_your_list">Your always-allowed people</string>
     <string name="allowed_empty">Add family, your doctor, bank or delivery numbers here.</string>
@@ -116,11 +133,11 @@
     <string name="allowed_add_number">Type a number</string>
     <string name="allowed_remove_title">Remove from always allowed?</string>
     <string name="allowed_remove_body">Calls with %1$s will be timed again.</string>
-    <string name="emergency_112">All emergencies</string>
+    <string name="emergency_112">Emergency</string>
     <string name="emergency_100">Police</string>
     <string name="emergency_101">Fire</string>
     <string name="emergency_102">Ambulance</string>
-    <string name="emergency_108">Emergency ambulance</string>
+    <string name="emergency_108">Medical</string>
     <string name="field_name">Name (optional)</string>
     <string name="field_number">Phone number</string>
     <string name="error_number">Please type a phone number.</string>
@@ -136,7 +153,7 @@
     <string name="settings_first_warning">First warning</string>
     <string name="settings_second_warning">Second warning</string>
     <string name="settings_appearance">Appearance</string>
-    <string name="theme_system">Same as phone</string>
+    <string name="theme_system">Auto</string>
     <string name="theme_light">Light</string>
     <string name="theme_dark">Dark</string>
     <string name="settings_language">Language</string>

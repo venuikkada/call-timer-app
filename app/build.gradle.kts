@@ -37,6 +37,15 @@ android {
     buildFeatures {
         compose = true
     }
+
+    testOptions {
+        unitTests.isIncludeAndroidResources = true
+        unitTests.all {
+            // Screenshot tests (ScreenshotTest.kt) write PNGs to app/screenshots/ when run with
+            // ./gradlew :app:testDebugUnitTest -Proborazzi.record=true
+            it.systemProperty("roborazzi.test.record", (project.findProperty("roborazzi.record") ?: "false").toString())
+        }
+    }
 }
 
 ksp {
@@ -66,4 +75,10 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
 
     testImplementation(libs.junit)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.roborazzi)
+    testImplementation(libs.roborazzi.compose)
+    testImplementation(platform(libs.compose.bom))
+    testImplementation(libs.compose.ui.test.junit4)
+    debugImplementation(libs.compose.ui.test.manifest)
 }

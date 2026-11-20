@@ -56,16 +56,20 @@ import java.util.Date
 fun SectionCard(
     modifier: Modifier = Modifier,
     title: String? = null,
-    containerColor: Color = MaterialTheme.colorScheme.surfaceContainerLow,
+    icon: ImageVector? = null,
+    containerColor: Color = MaterialTheme.colorScheme.surfaceContainer,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.medium,
+        shape = RoundedCornerShape(22.dp),
         colors = CardDefaults.cardColors(containerColor = containerColor),
     ) {
         Column(Modifier.padding(Spacing.m), verticalArrangement = Arrangement.spacedBy(Spacing.s)) {
-            if (title != null) Text(title, style = MaterialTheme.typography.titleMedium)
+            if (title != null) Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                if (icon != null) IconBadge(icon, MaterialTheme.colorScheme.primary, 36.dp)
+                Text(title, style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold))
+            }
             content()
         }
     }
@@ -128,7 +132,7 @@ fun TimerPill(remainingMillis: Long, band: TimerBand, paused: Boolean, modifier:
             Text(
                 if (paused) stringResource(R.string.pill_paused, TimerDisplay.mmss(remainingMillis))
                 else stringResource(R.string.pill_left, TimerDisplay.mmss(remainingMillis)),
-                style = MaterialTheme.typography.titleMedium.copy(fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold),
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, fontFeatureSettings = "tnum"),
             )
         }
     }

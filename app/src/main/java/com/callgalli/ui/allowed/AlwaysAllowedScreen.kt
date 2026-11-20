@@ -20,8 +20,12 @@ import androidx.compose.material.icons.outlined.Contacts
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.PersonAdd
-import androidx.compose.material.icons.outlined.VerifiedUser
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Surface
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -46,6 +50,7 @@ import com.callgalli.data.RuleEntity
 import com.callgalli.rules.EmergencyNumbers
 import com.callgalli.ui.AllowedViewModel
 import com.callgalli.ui.AppViewModelFactory
+import com.callgalli.ui.components.Avatar
 import com.callgalli.ui.components.BigButton
 import com.callgalli.ui.components.BigOutlinedButton
 import com.callgalli.ui.components.ConfirmDialog
@@ -85,12 +90,25 @@ fun AlwaysAllowedScreen(
             Text(stringResource(R.string.allowed_intro), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         item {
-            SectionCard(title = stringResource(R.string.allowed_emergency_title)) {
-                EmergencyNumbers.ALL.forEach { number ->
-                    Row(Modifier.fillMaxWidth().heightIn(min = 48.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Outlined.Lock, contentDescription = stringResource(R.string.allowed_locked), tint = MaterialTheme.colorScheme.primary)
-                        Text(number, style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(start = Spacing.m).weight(0.3f))
-                        Text(emergencyLabel(number), style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(0.7f))
+            SectionCard(title = stringResource(R.string.allowed_emergency_title), icon = Icons.Outlined.Lock) {
+                EmergencyNumbers.ALL.chunked(2).forEach { pair ->
+                    Row(horizontalArrangement = Arrangement.spacedBy(Spacing.s)) {
+                        pair.forEach { number ->
+                            Surface(
+                                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.10f),
+                                shape = RoundedCornerShape(16.dp),
+                                modifier = Modifier.weight(1f),
+                            ) {
+                                Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                                    Icon(Icons.Outlined.Lock, contentDescription = stringResource(R.string.allowed_locked), tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
+                                    Column {
+                                        Text(number, style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold), color = MaterialTheme.colorScheme.primary)
+                                        Text(emergencyLabel(number), style = MaterialTheme.typography.labelLarge, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                    }
+                                }
+                            }
+                        }
+                        if (pair.size == 1) Spacer(Modifier.weight(1f))
                     }
                 }
             }
@@ -104,8 +122,8 @@ fun AlwaysAllowedScreen(
         items(allowed, key = { it.number }) { rule ->
             SectionCard {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Outlined.VerifiedUser, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
-                    Column(Modifier.weight(1f).padding(start = Spacing.m)) {
+                    Avatar(rule.displayName, rule.number, MaterialTheme.colorScheme.primary)
+                    Column(Modifier.weight(1f).padding(start = 14.dp)) {
                         Text(rule.displayName ?: formatNumber(rule.number), style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
                         if (rule.displayName != null) Text(formatNumber(rule.number), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }

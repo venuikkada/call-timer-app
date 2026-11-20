@@ -96,7 +96,7 @@ private fun AppNavigation() {
 
     Scaffold(
         topBar = {
-            TopAppBar(
+            if (tab != Tab.HOME) TopAppBar(
                 title = {
                     Text(
                         when {

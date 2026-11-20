@@ -31,6 +31,7 @@ import com.callgalli.R
 import com.callgalli.data.CallOutcome
 import com.callgalli.ui.AppViewModelFactory
 import com.callgalli.ui.BlockedViewModel
+import com.callgalli.ui.components.Avatar
 import com.callgalli.ui.components.EmptyState
 import com.callgalli.ui.components.SectionCard
 import com.callgalli.ui.components.formatClock
@@ -65,7 +66,8 @@ fun BlockedLogScreen(
         }
         items(blocked, key = { it.number }) { row ->
             SectionCard(modifier = Modifier.clickable { onOpenNumber(row.number) }) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+                    Avatar(row.displayName, row.number, LocalStatusColors.current.red)
                     Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                         Text(row.displayName ?: formatNumber(row.number), style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
                         if (row.displayName != null) Text(formatNumber(row.number), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -106,8 +108,13 @@ fun NumberHistoryScreen(
         verticalArrangement = Arrangement.spacedBy(Spacing.s),
     ) {
         item {
-            Text(name ?: formatNumber(number), style = MaterialTheme.typography.headlineSmall)
-            if (name != null) Text(formatNumber(number), style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+                Avatar(name, number, MaterialTheme.colorScheme.primary, 56.dp)
+                Column {
+                    Text(name ?: formatNumber(number), style = MaterialTheme.typography.headlineSmall)
+                    if (name != null) Text(formatNumber(number), style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            }
         }
         item { Text(stringResource(R.string.history_last_7_days), style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(top = Spacing.s)) }
         items(days, key = { it.dayKey }) { day ->
