@@ -102,6 +102,10 @@ class CallRepository(
         result
     }
 
+    /** The most recent answered call that never got an end time (CallGalli was restarted mid-call). */
+    suspend fun findLatestOpenConnectedSession(): CallSessionEntity? =
+        db.sessions().openSessions().filter { it.connectedAt != null }.maxByOrNull { it.startedAt }
+
     /** An answered call from an earlier app process that never got an end time. */
     suspend fun findResumableSession(number: String): CallSessionEntity? =
         db.sessions().openSessions().filter { it.number == number && it.connectedAt != null }.maxByOrNull { it.startedAt }

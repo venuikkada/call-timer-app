@@ -1,6 +1,8 @@
 package com.callgalli.system
 
+import android.Manifest
 import android.annotation.SuppressLint
+import android.content.pm.PackageManager
 import android.app.role.RoleManager
 import android.content.ActivityNotFoundException
 import android.content.ComponentName
@@ -11,16 +13,43 @@ import android.os.Build
 import android.os.PowerManager
 import android.provider.Settings
 
-/** Default phone app + call screening roles. */
+/**
+ * What CallGalli needs while you keep using your phone's own dialer.
+ * Required: the call permissions. Recommended: overlay (floating pill), call screening.
+ */
+object Setup {
+    val CALL_PERMISSIONS = arrayOf(
+        Manifest.permission.READ_PHONE_STATE,
+        Manifest.permission.READ_CALL_LOG,
+        Manifest.permission.ANSWER_PHONE_CALLS,
+        @Suppress("DEPRECATION") Manifest.permission.PROCESS_OUTGOING_CALLS,
+    )
+
+    fun hasCallPermissions(context: Context): Boolean =
+        CALL_PERMISSIONS.all { context.checkSelfPermission(it) == PackageManager.PERMISSION_GRANTED }
+
+    fun hasOverlay(context: Context): Boolean = Settings.canDrawOverlays(context)
+
+    fun openOverlaySettings(context: Context) {
+        startFirst(
+            context,
+            listOf(
+                Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.fromParts("package", context.packageName, null)),
+                Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", context.packageName, null)),
+            ),
+        )
+    }
+
+    fun openAppSettings(context: Context) {
+        startFirst(context, listOf(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", context.packageName, null))))
+    }
+}
+
+/** Optional call screening role (silently rejects Stage 3 numbers that are not in contacts). */
 object Roles {
     private fun roleManager(context: Context) = context.getSystemService(RoleManager::class.java)
 
-    fun isDefaultDialer(context: Context): Boolean = roleManager(context)?.isRoleHeld(RoleManager.ROLE_DIALER) == true
-
     fun isCallScreener(context: Context): Boolean = roleManager(context)?.isRoleHeld(RoleManager.ROLE_CALL_SCREENING) == true
-
-    fun dialerRequest(context: Context): Intent? =
-        roleManager(context)?.takeIf { it.isRoleAvailable(RoleManager.ROLE_DIALER) }?.createRequestRoleIntent(RoleManager.ROLE_DIALER)
 
     fun screeningRequest(context: Context): Intent? =
         roleManager(context)?.takeIf { it.isRoleAvailable(RoleManager.ROLE_CALL_SCREENING) }

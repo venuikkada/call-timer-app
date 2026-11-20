@@ -6,24 +6,29 @@ import android.util.Log
 import com.callgalli.container
 import com.callgalli.rules.CallDecision
 import com.callgalli.rules.PhoneNumbers
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 
 /**
- * Runs before an incoming call rings (ROLE_CALL_SCREENING). Numbers at Stage 3 are
- * rejected here, so the phone never rings. The call still appears in the system call
+ * Optional extra (ROLE_CALL_SCREENING). Android only sends calls from numbers that are
+ * NOT saved in contacts to a screening app that is not the phone app. For those, Stage 3
+ * numbers are rejected here so the phone never rings. The call still appears in the system call
  * log, and in CallGalli's Blocked Log as "Blocked by limit".
  */
 class CallGalliScreeningService : CallScreeningService() {
 
     override fun onScreenCall(callDetails: Call.Details) {
-        if (callDetails.callDirection != Call.Details.DIRECTION_INCOMING) {
-            respondToCall(callDetails, allow())
-            return
-        }
         val c = container
         val raw = callDetails.handle?.schemeSpecificPart
         val number = PhoneNumbers.normalize(raw)
+        if (callDetails.callDirection != Call.Details.DIRECTION_INCOMING) {
+            // Outgoing: never blocked here, but it tells the watcher which number was dialled.
+            c.callMonitor.onOutgoingNumber(raw)
+            respondToCall(callDetails, allow())
+            return
+        }
 
         c.appScope.launch {
             // Android waits only ~5 s for an answer. If anything is slow, let the call ring.
@@ -41,6 +46,7 @@ class CallGalliScreeningService : CallScreeningService() {
                         .setSkipNotification(true)  // no "missed call" noise
                         .build(),
                 )
+                withContext(Dispatchers.Main) { c.callMonitor.onScreenedBlocked(number) }
                 c.repository.recordBlocked(number, c.contacts.lookupName(raw))
             } else {
                 respondToCall(callDetails, allow())

@@ -12,7 +12,6 @@ import com.callgalli.data.NumberToday
 import com.callgalli.data.PhoneContact
 import com.callgalli.data.RuleEntity
 import com.callgalli.data.TodaySummary
-import com.callgalli.rules.CallDecision
 import com.callgalli.rules.PhoneNumbers
 import com.callgalli.rules.RuleSettings
 import com.callgalli.rules.RulesEngine
@@ -37,13 +36,13 @@ val AppViewModelFactory: ViewModelProvider.Factory = viewModelFactory {
     initializer { BlockedViewModel((this[CreationExtrasApp] as CallGalliApp).container) }
     initializer { AllowedViewModel((this[CreationExtrasApp] as CallGalliApp).container) }
     initializer { SettingsViewModel((this[CreationExtrasApp] as CallGalliApp).container) }
-    initializer { DialerViewModel((this[CreationExtrasApp] as CallGalliApp).container) }
 }
 
-class HomeViewModel(c: AppContainer) : ViewModel() {
+class HomeViewModel(private val c: AppContainer) : ViewModel() {
     val summary: StateFlow<TodaySummary> = c.repository.todaySummary.state(this, TodaySummary())
     val numbers: StateFlow<List<NumberToday>> = c.repository.numbersToday.state(this, emptyList())
-    val inCall: StateFlow<InCallState> = c.callTracker.state
+    val inCall: StateFlow<InCallState> = c.callMonitor.state
+    fun hangUp() = c.callMonitor.hangUp()
     val settings = c.settings.settings
 }
 
@@ -117,13 +116,4 @@ class SettingsViewModel(private val c: AppContainer) : ViewModel() {
     fun updateRules(transform: (RuleSettings) -> RuleSettings) = c.settings.updateRules(transform)
     fun setTheme(mode: com.callgalli.data.ThemeMode) = c.settings.setTheme(mode)
     fun clearAll() = viewModelScope.launch { c.repository.clearAllData() }
-}
-
-class DialerViewModel(private val c: AppContainer) : ViewModel() {
-    /** Checks the number before dialing. ConfirmNeeded = it is at Stage 3 today. */
-    suspend fun check(rawNumber: String): CallDecision = c.repository.decideOutgoing(PhoneNumbers.normalize(rawNumber))
-
-    fun preConfirm(rawNumber: String) = c.callTracker.preConfirmOutgoing(PhoneNumbers.normalize(rawNumber))
-
-    fun nameFor(rawNumber: String): String? = c.contacts.lookupName(rawNumber)
 }

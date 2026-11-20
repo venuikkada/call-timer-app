@@ -46,6 +46,7 @@ import androidx.lifecycle.compose.LifecycleResumeEffect
 import com.callgalli.R
 import com.callgalli.system.BatteryHelper
 import com.callgalli.system.Roles
+import com.callgalli.system.Setup
 import com.callgalli.ui.components.BigButton
 import com.callgalli.ui.components.BigOutlinedButton
 import com.callgalli.ui.settings.StatusRow
@@ -57,19 +58,19 @@ fun OnboardingScreen(onDone: () -> Unit) {
     val context = LocalContext.current
     var page by rememberSaveable { mutableIntStateOf(0) }
 
-    var isDialer by remember { mutableStateOf(false) }
+    var callPermsOk by remember { mutableStateOf(false) }
     var isScreener by remember { mutableStateOf(false) }
     var contactsOk by remember { mutableStateOf(false) }
-    var phoneOk by remember { mutableStateOf(false) }
+    var overlayOk by remember { mutableStateOf(false) }
     var notificationsOk by remember { mutableStateOf(false) }
     var refresh by remember { mutableIntStateOf(0) }
 
     fun granted(p: String) = context.checkSelfPermission(p) == PackageManager.PERMISSION_GRANTED
     LifecycleResumeEffect(refresh) {
-        isDialer = Roles.isDefaultDialer(context)
+        callPermsOk = Setup.hasCallPermissions(context)
         isScreener = Roles.isCallScreener(context)
         contactsOk = granted(Manifest.permission.READ_CONTACTS)
-        phoneOk = granted(Manifest.permission.READ_PHONE_STATE) && granted(Manifest.permission.CALL_PHONE)
+        overlayOk = Setup.hasOverlay(context)
         notificationsOk = Build.VERSION.SDK_INT < 33 || granted(Manifest.permission.POST_NOTIFICATIONS)
         onPauseOrDispose { }
     }
@@ -94,6 +95,11 @@ fun OnboardingScreen(onDone: () -> Unit) {
             when (page) {
                 0 -> {
                     Header(Icons.Outlined.Timer, stringResource(R.string.onb1_title))
+                    Text(
+                        stringResource(R.string.app_name) + " · " + stringResource(R.string.by_developer, stringResource(R.string.developer_name)),
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
                     Body(stringResource(R.string.onb1_body))
                     Bullet(stringResource(R.string.onb1_point1))
                     Bullet(stringResource(R.string.onb1_point2))
@@ -103,12 +109,15 @@ fun OnboardingScreen(onDone: () -> Unit) {
                 1 -> {
                     Header(Icons.Outlined.Phone, stringResource(R.string.onb2_title))
                     Body(stringResource(R.string.onb2_body))
-                    StatusRow(stringResource(R.string.setup_default_phone_app), isDialer) {
-                        Roles.dialerRequest(context)?.let { roleLauncher.launch(it) } ?: Roles.openDefaultAppsSettings(context)
+                    Bullet(stringResource(R.string.onb2_point_state))
+                    Bullet(stringResource(R.string.onb2_point_number))
+                    Bullet(stringResource(R.string.onb2_point_end))
+                    StatusRow(stringResource(R.string.setup_call_permissions), callPermsOk) {
+                        permissionLauncher.launch(Setup.CALL_PERMISSIONS)
                     }
-                    Body(stringResource(R.string.onb2_screening_body))
-                    StatusRow(stringResource(R.string.setup_call_screening), isScreener) {
-                        Roles.screeningRequest(context)?.let { roleLauncher.launch(it) } ?: Roles.openDefaultAppsSettings(context)
+                    if (!callPermsOk) {
+                        Body(stringResource(R.string.onb2_restricted_hint))
+                        TextButton(onClick = { Setup.openAppSettings(context) }) { Text(stringResource(R.string.action_open_app_settings)) }
                     }
                 }
                 2 -> {
@@ -117,9 +126,9 @@ fun OnboardingScreen(onDone: () -> Unit) {
                     StatusRow(stringResource(R.string.perm_contacts), contactsOk) {
                         permissionLauncher.launch(arrayOf(Manifest.permission.READ_CONTACTS))
                     }
-                    Body(stringResource(R.string.onb3_phone_body))
-                    StatusRow(stringResource(R.string.perm_phone_state), phoneOk) {
-                        permissionLauncher.launch(arrayOf(Manifest.permission.READ_PHONE_STATE, Manifest.permission.CALL_PHONE))
+                    Body(stringResource(R.string.onb2_screening_body))
+                    StatusRow(stringResource(R.string.setup_call_screening_optional), isScreener) {
+                        Roles.screeningRequest(context)?.let { roleLauncher.launch(it) } ?: Roles.openDefaultAppsSettings(context)
                     }
                 }
                 else -> {
@@ -128,6 +137,8 @@ fun OnboardingScreen(onDone: () -> Unit) {
                     StatusRow(stringResource(R.string.perm_notifications), notificationsOk) {
                         if (Build.VERSION.SDK_INT >= 33) permissionLauncher.launch(arrayOf(Manifest.permission.POST_NOTIFICATIONS))
                     }
+                    Body(stringResource(R.string.onb4_overlay_body))
+                    StatusRow(stringResource(R.string.setup_overlay), overlayOk) { Setup.openOverlaySettings(context) }
                     Body(stringResource(R.string.onb4_battery_body))
                     TextButton(onClick = { BatteryHelper.openBatterySettings(context) }) { Text(stringResource(R.string.action_open_battery)) }
                     PrivacyNote()

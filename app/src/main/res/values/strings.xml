@@ -4,7 +4,12 @@
     can be added later by translating this one file.
 -->
 <resources>
-    <string name="app_name">CallGalli</string>
+    <string name="app_name">Call Timer</string>
+    <string name="developer_name">Venu Brushwood</string>
+    <string name="about_title">About</string>
+    <string name="about_developer">Developer</string>
+    <string name="about_version">Version</string>
+    <string name="by_developer">by %1$s</string>
     <string name="privacy_line">Your call data never leaves your phone.</string>
 
     <!-- Tabs -->
@@ -17,28 +22,18 @@
     <!-- Common actions -->
     <string name="action_add">Add</string>
     <string name="action_allow_contacts">Allow contacts</string>
-    <string name="action_answer">Answer</string>
     <string name="action_back">Back</string>
-    <string name="action_call">Call</string>
     <string name="action_cancel">Cancel</string>
-    <string name="action_decline">Decline</string>
     <string name="action_decrease">Decrease %1$s</string>
-    <string name="action_delete_digit">Delete digit</string>
     <string name="action_end_call">End call</string>
     <string name="action_fix">Fix</string>
     <string name="action_hang_up">Hang up</string>
-    <string name="action_hold">Hold</string>
     <string name="action_increase">Increase %1$s</string>
-    <string name="action_keypad">Keypad</string>
-    <string name="action_mute">Mute</string>
     <string name="action_next">Next</string>
     <string name="action_open_battery">Open battery settings</string>
-    <string name="action_open_call">Open call screen</string>
     <string name="action_remove">Remove</string>
-    <string name="action_resume">Resume</string>
     <string name="action_save">Save</string>
-    <string name="action_speaker">Speaker</string>
-    <string name="action_start">Start using CallGalli</string>
+    <string name="action_start">Start using Call Timer</string>
 
     <!-- Status chips -->
     <string name="status_fresh">Fresh</string>
@@ -77,7 +72,7 @@
     <string name="home_no_numbers">No calls yet today.</string>
     <string name="home_number_detail">%1$d answered · %2$s · %3$d blocked</string>
     <string name="home_setup_title">Setup not finished</string>
-    <string name="home_setup_body">CallGalli must be your default phone app and call screening app to time and block calls.</string>
+    <string name="home_setup_body">Allow the call permissions so Call Timer can see your calls and end them when time is up. You keep using your normal phone app.</string>
 
     <!-- Contacts & Rules -->
     <string name="contacts_search">Search name or number</string>
@@ -147,8 +142,13 @@
     <string name="settings_language">Language</string>
     <string name="settings_language_value">English</string>
     <string name="settings_phone_setup">Phone setup</string>
-    <string name="setup_default_phone_app">Default phone app</string>
-    <string name="setup_call_screening">Call screening</string>
+    <string name="setup_keep_your_dialer">Keep using your normal phone app. Call Timer works in the background.</string>
+    <string name="setup_call_permissions">Call permissions</string>
+    <string name="setup_overlay">Show timer over calls</string>
+    <string name="setup_call_screening_optional">Silent blocking for unsaved numbers (optional)</string>
+    <string name="could_not_end_title">Time is up</string>
+    <string name="could_not_end_body">Please end your call with %1$s. Call Timer could not end it: check its call permissions.</string>
+    <string name="action_open_app_settings">Open app settings</string>
     <string name="settings_clear_all">Clear all data</string>
     <string name="settings_clear_all_title">Clear all data?</string>
     <string name="settings_clear_all_body">This deletes all call counts, the blocked log, your always-allowed list and settings. It cannot be undone.</string>
@@ -156,55 +156,47 @@
 
     <!-- Battery -->
     <string name="battery_title">Battery settings</string>
-    <string name="battery_body">Your phone may stop CallGalli in the background, so calls might not be cut on time. Allow CallGalli to run without battery limits.</string>
+    <string name="battery_body">Your phone may stop Call Timer in the background, so calls might not be cut on time. Allow Call Timer to run without battery limits.</string>
     <string name="battery_saver_off">Battery saver is off</string>
-    <string name="battery_unrestricted">No battery limits for CallGalli</string>
-    <string name="battery_hint_xiaomi">On Xiaomi, Redmi and Poco phones: turn on Autostart for CallGalli and set Battery saver to \"No restrictions\".</string>
-    <string name="battery_hint_samsung">On Samsung phones: open Battery, then set CallGalli to \"Unrestricted\" and remove it from Sleeping apps.</string>
-    <string name="battery_hint_oppo">On Oppo, Realme and OnePlus phones: allow Auto launch and turn off battery optimisation for CallGalli.</string>
-    <string name="battery_hint_vivo">On Vivo and iQOO phones: allow Background running and Auto-start for CallGalli.</string>
+    <string name="battery_unrestricted">No battery limits for Call Timer</string>
+    <string name="battery_hint_xiaomi">On Xiaomi, Redmi and Poco phones: turn on Autostart for Call Timer and set Battery saver to \"No restrictions\".</string>
+    <string name="battery_hint_samsung">On Samsung phones: open Battery, then set Call Timer to \"Unrestricted\" and remove it from Sleeping apps.</string>
+    <string name="battery_hint_oppo">On Oppo, Realme and OnePlus phones: allow Auto launch and turn off battery optimisation for Call Timer.</string>
+    <string name="battery_hint_vivo">On Vivo and iQOO phones: allow Background running and Auto-start for Call Timer.</string>
 
     <!-- Onboarding -->
     <string name="onb1_title">Keep calls short</string>
-    <string name="onb1_body">CallGalli puts a time limit on calls, for each phone number:</string>
+    <string name="onb1_body">Call Timer puts a time limit on calls, for each phone number:</string>
     <string name="onb1_point1">First call of the day: ends after 10 minutes.</string>
     <string name="onb1_point2">Second call: ends after 5 minutes.</string>
     <string name="onb1_point3">More calls that day are rejected until midnight. Emergency numbers and people you choose are never limited.</string>
-    <string name="onb2_title">Make CallGalli your phone app</string>
-    <string name="onb2_body">To end a call when time is up, CallGalli must be your default phone app. It shows incoming calls and the call screen.</string>
-    <string name="onb2_screening_body">Call screening lets CallGalli reject a number that has used up today\'s calls, before your phone rings.</string>
+    <string name="onb2_title">Keep your phone app</string>
+    <string name="onb2_body">Make and answer calls with your normal phone app. Call Timer works quietly in the background. It needs these call permissions:</string>
+    <string name="onb2_point_state">See when a call rings, starts and ends.</string>
+    <string name="onb2_point_number">See who is calling (call log), so limits are counted per person.</string>
+    <string name="onb2_point_end">End a call when the time is up, and reject a caller who used up today\'s calls.</string>
+    <string name="onb2_restricted_hint">If Android says \"Restricted setting\": open App settings, tap ⋮ (top right), choose \"Allow restricted settings\", then come back and tap Fix again.</string>
+    <string name="onb2_screening_body">Optional: with call screening, numbers that are NOT saved in your contacts are blocked before your phone even rings. Saved contacts are rejected by Call Timer right when they start ringing.</string>
     <string name="onb3_title">Names and calls</string>
     <string name="onb3_contacts_body">Contacts: so you see \"Ravi\" instead of a number, and can pick always-allowed people.</string>
-    <string name="onb3_phone_body">Phone: so CallGalli can see calls and place calls from its dial pad.</string>
     <string name="onb4_title">Alerts</string>
-    <string name="onb4_body">Notifications: to show incoming calls, the time left, and when a call is ended by the limit.</string>
-    <string name="onb4_battery_body">Some phones stop apps to save battery. Allow CallGalli to run without battery limits so the timer is always on time.</string>
+    <string name="onb4_body">Notifications: to show the time left, warnings, and when a call is ended by the limit.</string>
+    <string name="onb4_overlay_body">Show timer over calls: a small \"07:42 left\" pill floats on top of your phone app\'s call screen. You can drag it up or down.</string>
+    <string name="onb4_battery_body">Some phones stop apps to save battery. Allow Call Timer to run without battery limits so the timer is always on time.</string>
     <string name="perm_contacts">Contacts</string>
-    <string name="perm_phone_state">Phone</string>
     <string name="perm_notifications">Notifications</string>
 
-    <!-- Dial pad -->
-    <string name="dialer_title">Dial pad</string>
-    <string name="dialer_hint">Enter number</string>
+    <!-- Outgoing call over the limit -->
     <string name="dialer_blocked_title">Limit reached for today</string>
-    <string name="dialer_blocked_body">You have already had 2 calls with %1$s today. If you call, it will still end at the repeat-call limit.</string>
-    <string name="dialer_call_anyway">Call anyway</string>
+    <string name="dialer_blocked_body">You have already had 2 calls with %1$s today. If you continue, this call will still end at the repeat-call limit.</string>
 
     <!-- In-call -->
     <string name="incall_incoming">Incoming call</string>
-    <string name="incall_calling">Calling…</string>
-    <string name="incall_on_hold">On hold</string>
-    <string name="incall_ending">Ending…</string>
-    <string name="incall_swap">Swap</string>
     <string name="incall_untimed">No time limit</string>
-    <string name="incall_emergency">Emergency call · no limit</string>
-    <string name="incall_always_allowed">Always allowed · no limit</string>
 
     <!-- Notifications -->
-    <string name="channel_incoming">Incoming calls</string>
     <string name="channel_ongoing">Call timer</string>
     <string name="channel_alerts">Limit alerts</string>
     <string name="notif_watching_calls">Watching call time</string>
     <string name="notif_time_left_running">Time left on this call</string>
-    <string name="notif_paused_on_hold">%1$s left · paused on hold</string>
 </resources>

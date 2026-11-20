@@ -1,7 +1,5 @@
 package com.callgalli.ui
 
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -11,13 +9,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Contacts
-import androidx.compose.material.icons.outlined.Dialpad
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.PhoneDisabled
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.VerifiedUser
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -28,14 +24,12 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -46,19 +40,15 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.callgalli.R
 import com.callgalli.container
+import com.callgalli.telecom.CallMonitorService
 import com.callgalli.ui.allowed.AlwaysAllowedScreen
 import com.callgalli.ui.blocked.BlockedLogScreen
 import com.callgalli.ui.blocked.NumberHistoryScreen
 import com.callgalli.ui.contacts.ContactsScreen
-import com.callgalli.ui.dialer.DialerScreen
 import com.callgalli.ui.home.HomeScreen
-import com.callgalli.ui.incall.InCallActivity
 import com.callgalli.ui.onboarding.OnboardingScreen
 import com.callgalli.ui.settings.SettingsScreen
 import com.callgalli.ui.theme.CallGalliTheme
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 private enum class Tab(val route: String, @StringRes val label: Int, val icon: ImageVector) {
     HOME("home", R.string.tab_home, Icons.Outlined.Home),
@@ -70,63 +60,39 @@ private enum class Tab(val route: String, @StringRes val label: Int, val icon: I
 
 class MainActivity : ComponentActivity() {
 
-    /** Number from a DIAL / tel: intent, opened on the dial pad. */
-    private val dialRequest = MutableStateFlow<String?>(null)
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        handleIntent(intent)
         val c = container
-
-        // Close any call that was cut off by a reboot or a killed app.
-        lifecycleScope.launch {
-            delay(5_000) // let any ongoing call be re-attached first
-            c.repository.closeOrphanSessions(c.callTracker.liveSessionIds(), c.callTracker.processStartedAt)
-        }
+        // Start (or keep) the always-on call watcher. Starting from the foreground is always allowed.
+        if (c.settings.current.onboardingDone) CallMonitorService.start(this)
 
         setContent {
             val settings by c.settings.settings.collectAsStateWithLifecycle()
             CallGalliTheme(settings.theme) {
                 Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
                     if (!settings.onboardingDone) {
-                        OnboardingScreen(onDone = { c.settings.setOnboardingDone(true) })
+                        OnboardingScreen(onDone = {
+                            c.settings.setOnboardingDone(true)
+                            CallMonitorService.start(this)
+                        })
                     } else {
-                        AppNavigation(dialRequest)
+                        AppNavigation()
                     }
                 }
             }
-        }
-    }
-
-    override fun onNewIntent(intent: Intent) {
-        super.onNewIntent(intent)
-        handleIntent(intent)
-    }
-
-    private fun handleIntent(intent: Intent?) {
-        if (intent?.action == Intent.ACTION_DIAL || intent?.action == Intent.ACTION_VIEW) {
-            dialRequest.value = intent.data?.takeIf { it.scheme == "tel" }?.schemeSpecificPart.orEmpty()
         }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun AppNavigation(dialRequest: MutableStateFlow<String?>) {
+private fun AppNavigation() {
     val nav = rememberNavController()
     val backStack by nav.currentBackStackEntryAsState()
     val route = backStack?.destination?.route
     val tab = Tab.entries.firstOrNull { it.route == route }
-    val pending by dialRequest.collectAsStateWithLifecycle()
     val context = androidx.compose.ui.platform.LocalContext.current
-
-    LaunchedEffect(pending) {
-        pending?.let { number ->
-            nav.navigate("dialer?number=${Uri.encode(number)}") { launchSingleTop = true }
-            dialRequest.value = null
-        }
-    }
 
     Scaffold(
         topBar = {
@@ -135,7 +101,6 @@ private fun AppNavigation(dialRequest: MutableStateFlow<String?>) {
                     Text(
                         when {
                             tab != null -> stringResource(if (tab == Tab.HOME) R.string.app_name else tab.label)
-                            route?.startsWith("dialer") == true -> stringResource(R.string.dialer_title)
                             else -> stringResource(R.string.history_title)
                         },
                         maxLines = 1, overflow = TextOverflow.Ellipsis,
@@ -160,17 +125,11 @@ private fun AppNavigation(dialRequest: MutableStateFlow<String?>) {
                 }
             }
         },
-        floatingActionButton = {
-            if (tab == Tab.HOME) FloatingActionButton(onClick = { nav.navigate("dialer?number=") }) {
-                Icon(Icons.Outlined.Dialpad, contentDescription = stringResource(R.string.dialer_title))
-            }
-        },
     ) { padding ->
         NavHost(nav, startDestination = Tab.HOME.route) {
             composable(Tab.HOME.route) {
                 HomeScreen(
                     contentPadding = padding,
-                    onOpenCall = { context.startActivity(Intent(context, InCallActivity::class.java)) },
                     onOpenSettings = { nav.goToTab(Tab.SETTINGS) },
                     onOpenNumber = { nav.navigate("history/$it") },
                 )
@@ -181,12 +140,6 @@ private fun AppNavigation(dialRequest: MutableStateFlow<String?>) {
             composable(Tab.SETTINGS.route) { SettingsScreen(padding) }
             composable("history/{number}", arguments = listOf(navArgument("number") { type = NavType.StringType })) { entry ->
                 NumberHistoryScreen(entry.arguments?.getString("number").orEmpty(), padding)
-            }
-            composable(
-                "dialer?number={number}",
-                arguments = listOf(navArgument("number") { type = NavType.StringType; defaultValue = "" }),
-            ) { entry ->
-                DialerScreen(entry.arguments?.getString("number").orEmpty(), padding)
             }
         }
     }

@@ -7,7 +7,7 @@ import com.callgalli.data.CallRepository
 import com.callgalli.data.ContactsRepository
 import com.callgalli.data.SettingsStore
 import com.callgalli.telecom.CallNotifications
-import com.callgalli.telecom.CallTracker
+import com.callgalli.telecom.CallMonitor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -20,7 +20,7 @@ class AppContainer(context: Context) {
     val repository = CallRepository(database, settings)
     val contacts = ContactsRepository(context)
     val notifications = CallNotifications(context)
-    val callTracker = CallTracker(context, repository, contacts, settings, notifications)
+    val callMonitor = CallMonitor(context, repository, contacts, settings, notifications)
 }
 
 class CallGalliApp : Application() {

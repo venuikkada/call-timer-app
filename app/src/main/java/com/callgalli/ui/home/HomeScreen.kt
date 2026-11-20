@@ -33,8 +33,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.callgalli.R
 import com.callgalli.data.NumberToday
 import com.callgalli.system.BatteryHelper
-import com.callgalli.system.Roles
-import com.callgalli.telecom.CallPhase
+import com.callgalli.system.Setup
+import com.callgalli.telecom.CallEnder
 import com.callgalli.telecom.InCallState
 import com.callgalli.ui.AppViewModelFactory
 import com.callgalli.ui.HomeViewModel
@@ -53,7 +53,6 @@ import com.callgalli.ui.theme.Spacing
 @Composable
 fun HomeScreen(
     contentPadding: PaddingValues,
-    onOpenCall: () -> Unit,
     onOpenSettings: () -> Unit,
     onOpenNumber: (String) -> Unit,
     vm: HomeViewModel = viewModel(factory = AppViewModelFactory),
@@ -67,7 +66,7 @@ fun HomeScreen(
     var setupMissing by remember { mutableStateOf(false) }
     var batteryWarning by remember { mutableStateOf(false) }
     LifecycleResumeEffect(Unit) {
-        setupMissing = !Roles.isDefaultDialer(context) || !Roles.isCallScreener(context)
+        setupMissing = !Setup.hasCallPermissions(context)
         batteryWarning = BatteryHelper.needsAttention(context)
         onPauseOrDispose { }
     }
@@ -99,7 +98,7 @@ fun HomeScreen(
             )
         }
 
-        if (inCall.hasCalls) item { ActiveNowCard(inCall, onOpenCall) }
+        if (inCall.hasCall) item { ActiveNowCard(inCall, vm::hangUp) }
 
         item {
             SectionCard(title = stringResource(R.string.home_today)) {
@@ -127,12 +126,12 @@ fun HomeScreen(
 }
 
 @Composable
-private fun ActiveNowCard(state: InCallState, onOpen: () -> Unit) {
-    val call = state.primary ?: return
+private fun ActiveNowCard(state: InCallState, onHangUp: () -> Unit) {
+    val call = state.call ?: return
+    val context = LocalContext.current
     SectionCard(
         title = stringResource(R.string.home_active_now),
         containerColor = MaterialTheme.colorScheme.primaryContainer,
-        modifier = Modifier.clickable(onClick = onOpen),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Spacing.s)) {
             Icon(Icons.Outlined.PhoneInTalk, contentDescription = null)
@@ -140,14 +139,15 @@ private fun ActiveNowCard(state: InCallState, onOpen: () -> Unit) {
         }
         val remaining = call.remainingMillis
         when {
-            call.phase == CallPhase.RINGING -> Text(stringResource(R.string.incall_incoming))
-            !call.connected -> Text(stringResource(R.string.incall_calling))
+            call.ringing -> Text(stringResource(R.string.incall_incoming))
             remaining != null && call.band != null ->
                 TimerPill(remaining, call.band, paused = !call.timerRunning)
             else -> Text(stringResource(R.string.incall_untimed))
         }
         state.banner?.let { WarningBannerBar(it.secondsLeft, it.label) }
-        TextButton(onClick = onOpen) { Text(stringResource(R.string.action_open_call)) }
+        if (!call.ringing && CallEnder.canEnd(context)) {
+            TextButton(onClick = onHangUp) { Text(stringResource(R.string.action_end_call)) }
+        }
     }
 }
 

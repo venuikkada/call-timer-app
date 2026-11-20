@@ -52,6 +52,7 @@ import com.callgalli.rules.RuleSettings
 import com.callgalli.system.BatteryHelper
 import com.callgalli.system.Oem
 import com.callgalli.system.Roles
+import com.callgalli.system.Setup
 import com.callgalli.ui.AppViewModelFactory
 import com.callgalli.ui.SettingsViewModel
 import com.callgalli.ui.components.BigButton
@@ -72,19 +73,26 @@ fun SettingsScreen(
     var showTimePicker by remember { mutableStateOf(false) }
     var confirmClear by remember { mutableStateOf(false) }
 
-    var isDialer by remember { mutableStateOf(false) }
+    var callPermsOk by remember { mutableStateOf(false) }
+    var overlayOk by remember { mutableStateOf(false) }
     var isScreener by remember { mutableStateOf(false) }
     var powerSave by remember { mutableStateOf(false) }
     var optimized by remember { mutableStateOf(false) }
     var refresh by remember { mutableIntStateOf(0) }
     LifecycleResumeEffect(refresh) {
-        isDialer = Roles.isDefaultDialer(context)
+        callPermsOk = Setup.hasCallPermissions(context)
+        overlayOk = Setup.hasOverlay(context)
         isScreener = Roles.isCallScreener(context)
         powerSave = BatteryHelper.isPowerSaveOn(context)
         optimized = !BatteryHelper.isIgnoringOptimizations(context)
         onPauseOrDispose { }
     }
     val roleLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { refresh++ }
+    val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { result ->
+        refresh++
+        // "Don't ask again" was chosen earlier: send the user to app settings.
+        if (result.values.any { !it } && !Setup.hasCallPermissions(context)) Setup.openAppSettings(context)
+    }
 
     LazyColumn(
         contentPadding = PaddingValues(
@@ -162,10 +170,12 @@ fun SettingsScreen(
         }
         item {
             SectionCard(title = stringResource(R.string.settings_phone_setup)) {
-                StatusRow(stringResource(R.string.setup_default_phone_app), isDialer) {
-                    Roles.dialerRequest(context)?.let { roleLauncher.launch(it) } ?: Roles.openDefaultAppsSettings(context)
+                Text(stringResource(R.string.setup_keep_your_dialer), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                StatusRow(stringResource(R.string.setup_call_permissions), callPermsOk) {
+                    permissionLauncher.launch(Setup.CALL_PERMISSIONS)
                 }
-                StatusRow(stringResource(R.string.setup_call_screening), isScreener) {
+                StatusRow(stringResource(R.string.setup_overlay), overlayOk) { Setup.openOverlaySettings(context) }
+                StatusRow(stringResource(R.string.setup_call_screening_optional), isScreener) {
                     Roles.screeningRequest(context)?.let { roleLauncher.launch(it) } ?: Roles.openDefaultAppsSettings(context)
                 }
             }
@@ -188,7 +198,15 @@ fun SettingsScreen(
             }
         }
         item {
-            SectionCard {
+            SectionCard(title = stringResource(R.string.about_title)) {
+                Row(Modifier.fillMaxWidth().heightIn(min = 48.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Text(stringResource(R.string.app_name), style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
+                    Text(stringResource(R.string.about_version) + " " + appVersion(context), style = MaterialTheme.typography.bodyMedium)
+                }
+                Row(Modifier.fillMaxWidth().heightIn(min = 48.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Text(stringResource(R.string.about_developer), style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
+                    Text(stringResource(R.string.developer_name), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+                }
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Spacing.s)) {
                     Icon(Icons.Outlined.Shield, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                     Text(stringResource(R.string.privacy_line), style = MaterialTheme.typography.bodyLarge)
@@ -216,6 +234,9 @@ fun SettingsScreen(
         )
     }
 }
+
+private fun appVersion(context: android.content.Context): String =
+    runCatching { context.packageManager.getPackageInfo(context.packageName, 0).versionName }.getOrNull().orEmpty()
 
 @Composable
 private fun Stepper(label: String, value: String, onMinus: () -> Unit, onPlus: () -> Unit) {

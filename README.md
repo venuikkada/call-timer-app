@@ -1,10 +1,11 @@
-# CallGalli
+# Call Timer
 
 An Android app that limits how long phone calls last and stops one person from calling again and again in a day.
+**You keep using your phone's normal dialer** (Google Phone, Samsung Phone, Mi Dialer…). Call Timer works quietly in the background.
 
-- **1st call** from a number: ends automatically at **10:00**.
+- **1st call** with a number: ends automatically at **10:00**.
 - **2nd answered call** that day: ends at **5:00**.
-- **After that**: calls from that number are rejected before they ring ("Blocked by limit") until midnight.
+- **After that**: calls from that number are rejected until midnight and logged as "Blocked by limit".
 - **Emergency numbers** (112, 100, 101, 102, 108) and your **Always Allowed** people are never timed or blocked.
 
 No login, no internet permission, no ads. **Your call data never leaves your phone.**
@@ -24,7 +25,7 @@ The APK is at `app/build/outputs/apk/release/app-release.apk`.
 (It is signed with the debug key so you can test it. Use your own keystore before publishing on the Play Store.)
 
 ### Put it on the phone
-**Option A – USB cable (fastest):**
+**Option A – USB cable:**
 1. On the phone: *Settings → About phone →* tap **Build number** 7 times to unlock Developer options.
 2. *Settings → Developer options →* turn on **USB debugging**.
 3. Connect the phone and run:
@@ -35,84 +36,84 @@ adb install -r app/build/outputs/apk/release/app-release.apk
 
 **Option B – WhatsApp / Google Drive / file manager:**
 1. Send the `.apk` file to yourself (WhatsApp "Document", Drive, or USB copy).
-2. Open it on the phone. Android asks to **allow installs from this source** → allow → **Install**.
-3. If Play Protect warns about an unknown app, tap **More details → Install anyway** (it is your own app).
+2. Open it on the phone → **allow installs from this source** → **Install**.
+3. If Play Protect warns about an unknown app, tap **More details → Install anyway**.
 
 ---
 
-## 2. Set CallGalli as the default phone app and call screener
+## 2. Set it up (about 1 minute)
 
-CallGalli can only end calls if it is the **default phone app**, and can only reject calls before they ring if it is the **call screening app**. The app's onboarding asks for both. If you skipped them:
+You do **not** change your default phone app. The app's 4 setup screens ask for:
 
-**Default phone app**
-- Stock Android / Pixel / Motorola: *Settings → Apps → Default apps → Phone app →* **CallGalli**
-- Samsung: *Settings → Apps → Choose default apps → Phone app →* **CallGalli**
-- Xiaomi / Redmi / Poco: *Settings → Apps → Manage apps → ⋮ → Default apps → Phone →* **CallGalli**
-- Oppo / Realme / OnePlus / Vivo: *Settings → Apps → Default apps → Phone / Dialer →* **CallGalli**
+| What | Why | Required? |
+|---|---|---|
+| **Call permissions** (Phone + Call logs) | See when a call rings/starts/ends, who it is with, and end it when time is up | **Yes** |
+| Contacts | Show "Ravi" instead of a number | Recommended |
+| Notifications | Time left, warnings, "ended by limit" | Recommended |
+| **Show timer over calls** ("Display over other apps") | The floating "07:42 left" pill on top of your phone app's call screen | Recommended |
+| Call screening ("Caller ID & spam app") | Numbers **not saved in contacts** are blocked before the phone even rings | Optional |
+| Battery: no restrictions | Keeps the watcher alive on Xiaomi, Samsung, Oppo, Vivo | **Strongly recommended** |
 
-**Call screening ("Caller ID & spam app")**
-- *Settings → Apps → Default apps → Caller ID & spam app →* **CallGalli**
-- Or in CallGalli: *Settings → Phone setup → Call screening → Fix*.
+### "Restricted setting" message (Android 13+ sideloaded apps)
+If Android blocks the **Call logs** permission with "Restricted setting":
+1. *Settings → Apps → Call Timer →* tap **⋮** (top right) → **Allow restricted settings**.
+2. Go back to Call Timer → *Settings → Phone setup → Call permissions → Fix*.
 
-**Battery (important on Xiaomi, Samsung, Oppo, Vivo)**
-In CallGalli open *Settings → Battery settings* and follow the hint for your phone (Autostart on, battery "No restrictions" / "Unrestricted"). Without this, some phones pause apps and a call might not be cut on time.
+### Battery (important)
+In Call Timer open *Settings → Battery settings* and follow the hint for your phone (Autostart on, battery "No restrictions" / "Unrestricted"). Without this, some phones stop background apps and a call might not be cut on time.
 
-To stop using CallGalli, just pick your old phone app again in *Default apps*.
+Call Timer shows a small silent "Watching call time" notification all the time. That keeps it alive; you can't swipe it away.
 
 ---
 
-## 3. Project structure
+## 3. What works differently because you keep your own phone app
+
+Android gives full call control only to the default phone app. As a background app, Call Timer gets less information:
+
+| Rule | Status |
+|---|---|
+| 10 min / 5 min / blocked until midnight | ✅ Works for incoming and outgoing |
+| Third call from a **saved contact** | ✅ Rejected, but the phone may ring for a split second first |
+| Third call from an **unsaved number** | ✅ Never rings (if call screening is on) |
+| Timer starts when the call connects | ✅ Incoming. ⚠️ Outgoing: starts when you dial (Android doesn't tell other apps when the other person answers), so about 10–30 s of ringing counts |
+| Pause on hold | ❌ Not possible: hold isn't visible to other apps |
+| Call waiting / conference | ⚠️ The first call is timed. If you switch to the waiting call, "end" cuts the call you are on now |
+| Dial a blocked number | ⚠️ Can't stop the dial. You get a warning with a **Hang up** button, and the call is cut at 5 min |
+| Dual SIM | ✅ Counted per number, not per SIM |
+| Emergency numbers | ✅ Never timed. Android also never lets apps end an emergency call |
+
+---
+
+## 4. Project structure
 
 ```
 call-timer-app/
 ├── rules-engine/                     Pure Kotlin. No Android. All call-limit rules live here.
-│   └── src/main/kotlin/com/callgalli/rules/
-│       ├── RulesEngine.kt            Stages (Fresh → Limited → Blocked), decisions, counts
-│       ├── CallClock.kt              Talk-time clock (pauses on hold), colour bands, 60/30 s warnings
-│       ├── DayKeys.kt                "2026-11-20" day key → midnight reset with no background job
-│       ├── PhoneNumbers.kt           +91 / 0 / spaces / dashes → one number; emergency list
-│       └── RuleSettings.kt           10 / 5 min defaults, validated 1–60
-│   └── src/test/kotlin/...           Unit tests, incl. the acceptance-test scenarios
+│   ├── src/main/kotlin/com/callgalli/rules/
+│   │   ├── RulesEngine.kt            Stages (Fresh → Limited → Blocked), decisions, counts
+│   │   ├── CallClock.kt              Talk-time clock, colour bands, 60/30 s warnings
+│   │   ├── DayKeys.kt                "2026-11-20" day key → midnight reset with no background job
+│   │   ├── PhoneNumbers.kt           +91 / 0 / spaces / dashes → one number; emergency list
+│   │   └── RuleSettings.kt           10 / 5 min defaults, validated 1–60
+│   └── src/test/kotlin/...           35 unit tests, incl. the acceptance-test scenarios
 │
 └── app/src/main/java/com/callgalli/
     ├── CallGalliApp.kt               App + simple dependency container
     ├── data/                         Room: RuleEntity, CallSessionEntity, DailyUsageEntity, DAOs,
     │                                 CallRepository (engine ↔ database), contacts, settings
     ├── telecom/
-    │   ├── CallGalliScreeningService Rejects Stage 3 numbers before they ring (kept in call log)
-    │   ├── CallGalliInCallService    Default-dialer service: receives every call
-    │   ├── CallTracker               Runs the timer, warnings, Call.disconnect() at 0
-    │   ├── CallTimerService          Foreground "phone call" service (works with screen off)
-    │   ├── CallNotifications         Incoming call, live countdown, "ended by limit" alerts
-    │   └── Receivers                 Notification buttons, reboot clean-up
-    ├── system/                       Roles (dialer/screening), battery + OEM settings, vibration
-    └── ui/                           Compose + Material 3
-        ├── onboarding/               4 screens explaining each permission
-        ├── home/                     Today card, Active now card, numbers used today
-        ├── contacts/                 Contacts & Rules (search, Always Allow, long-press reset)
-        ├── blocked/                  Blocked Log + 7-day history per number
-        ├── allowed/                  Always Allowed (emergency numbers locked on top)
-        ├── settings/                 Limits, reset time, warnings, dark mode, clear data
-        ├── dialer/                   Dial pad (Android requires one for the phone-app role)
-        ├── incall/                   Incoming / in-call screen with the timer pill
-        ├── components/, theme/       Shared cards, chips, pill; deep-teal theme, dark mode
+    │   ├── CallMonitor               Call state machine (RINGING → OFFHOOK → IDLE), timer, warnings, cut-off
+    │   ├── CallMonitorService        Always-on foreground watcher (works with screen off / app closed)
+    │   ├── TimerOverlay              Floating pill + warning banner over the phone app
+    │   ├── CallGalliScreeningService Optional: rejects unsaved Stage 3 numbers before they ring
+    │   ├── CallNotifications         Live countdown, warnings, "ended by limit", over-limit dial warning
+    │   └── Receivers                 Phone-state / outgoing-call broadcasts, Hang up button, boot
+    ├── system/                       Permissions & roles, battery + phone-maker settings, vibration
+    └── ui/                           Compose + Material 3: onboarding, home, contacts, blocked log,
+                                      always allowed, settings, shared components and theme
 ```
 
 All text is in `app/src/main/res/values/strings.xml`. To add Telugu or Hindi later, copy it to `values-te/` or `values-hi/` and translate.
-
-## 4. How it works (short)
-
-| Event | What happens |
-|---|---|
-| Number calls, it is at Stage 3 | `CallScreeningService` answers `setDisallowCall + setRejectCall` → phone never rings, saved as **Blocked by limit** |
-| Call is picked up (state ACTIVE) | Engine uses up a stage and returns the limit (10 or 5 min). Clock starts now, not while ringing |
-| On hold / call waiting | Clock pauses for the call on hold |
-| Conference | Timed as one call (the first participant's timer) |
-| 60 s and 30 s left | Full-width banner + short vibration + heads-up notification |
-| 0 s | `Call.disconnect()`, notification "Call with Ravi ended by 10-min limit." |
-| Midnight | Day key changes → everyone is Fresh. No alarm or background job |
-| App killed mid-call | Android rebinds the service; the saved timer continues (no fresh 10 min) |
-| Phone reboots mid-call | Call no longer exists → session closed using the last saved heartbeat. Stages stay used |
 
 ## 5. Run the tests
 
@@ -120,19 +121,18 @@ All text is in `app/src/main/res/values/strings.xml`. To add Telugu or Hindi lat
 ./gradlew :rules-engine:test
 ```
 
-35 unit tests cover number matching, the midnight / custom reset, all three stages, emergency and Always Allowed numbers, hold pause, warnings, colours, and the acceptance-test scenarios (10:00 cut, 5:00 cut, third call rejected, reset).
+## 6. Test checklist on a real phone
 
-## 6. Manual test checklist on a real phone
+Tip: in Settings, set first call = 1 min and repeat call = 1 min to test quickly. Use a friend's phone.
 
-Use two phones (or a friend). Tip: set first-call = 1 min and repeat-call = 1 min in Settings to test quickly.
-
-1. Friend calls → answer → call ends at the limit (±2 s); notification says "ended by … limit"; History shows **Ended by limit**.
+1. Friend calls → answer in your normal phone app → the floating pill counts down → the call ends at the limit (±2 s) → notification "Call with … ended by 1-min limit". History shows **Ended by limit**.
 2. Friend calls again → answer → ends at the repeat limit.
-3. Friend calls a third time → your phone does not ring; it appears in **Blocked Log**.
-4. Change the reset time to 2 minutes from now → after it passes, the friend is **Fresh** again.
-5. Emergency numbers: check they show locked at the top of **Always Allowed**. Their "never timed" rule is covered by unit tests — **do not place real emergency calls to test.**
-6. Toggle **Always allow** on the friend → their calls are never timed or blocked.
-7. During a timed call: lock the screen, swipe CallGalli away from recents → the call is still cut on time.
+3. Friend calls a third time → rejected right away and listed in **Blocked Log**.
+4. You call the friend → you get the "limit reached" warning with **Hang up**.
+5. Set the reset time to 2 minutes from now → after it passes, the friend is **Fresh** again.
+6. Turn on **Always allow** for the friend → their calls are never timed or rejected.
+7. During a timed call, lock the screen and swipe Call Timer away from recents → the call is still cut on time.
+8. Emergency numbers: check they show locked in **Always Allowed**. **Do not place real emergency calls to test.**
 
 ## v1 scope
 
