@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    All user-facing text lives here so Telugu (values-te) and Hindi (values-hi)
+    can be added later by translating this one file.
+-->
+<resources>
+    <string name="app_name">CallGalli</string>
+    <string name="privacy_line">Your call data never leaves your phone.</string>
+
+    <!-- Tabs -->
+    <string name="tab_home">Home</string>
+    <string name="tab_contacts">Contacts</string>
+    <string name="tab_blocked">Blocked</string>
+    <string name="tab_allowed">Allowed</string>
+    <string name="tab_settings">Settings</string>
+
+    <!-- Common actions -->
+    <string name="action_add">Add</string>
+    <string name="action_allow_contacts">Allow contacts</string>
+    <string name="action_answer">Answer</string>
+    <string name="action_back">Back</string>
+    <string name="action_call">Call</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_decline">Decline</string>
+    <string name="action_decrease">Decrease %1$s</string>
+    <string name="action_delete_digit">Delete digit</string>
+    <string name="action_end_call">End call</string>
+    <string name="action_fix">Fix</string>
+    <string name="action_hang_up">Hang up</string>
+    <string name="action_hold">Hold</string>
+    <string name="action_increase">Increase %1$s</string>
+    <string name="action_keypad">Keypad</string>
+    <string name="action_mute">Mute</string>
+    <string name="action_next">Next</string>
+    <string name="action_open_battery">Open battery settings</string>
+    <string name="action_open_call">Open call screen</string>
+    <string name="action_remove">Remove</string>
+    <string name="action_resume">Resume</string>
+    <string name="action_save">Save</string>
+    <string name="action_speaker">Speaker</string>
+    <string name="action_start">Start using CallGalli</string>
+
+    <!-- Status chips -->
+    <string name="status_fresh">Fresh</string>
+    <string name="status_limited">Limited to %1$d min</string>
+    <string name="status_blocked">Blocked until %1$s</string>
+    <string name="status_always_allowed">Always allowed</string>
+    <string name="status_done">Done</string>
+    <string name="status_needed">Needs your action</string>
+    <string name="reset_midnight">midnight</string>
+
+    <!-- Timer pill and warnings -->
+    <string name="pill_left">%1$s left</string>
+    <string name="pill_paused">%1$s left · paused</string>
+    <string name="warning_title">%1$d seconds left</string>
+    <string name="warning_body">Your call with %1$s will end soon.</string>
+    <string name="ended_by_limit_title">Ended by limit</string>
+    <string name="ended_by_limit_body">Call with %1$s ended by %2$d-min limit.</string>
+
+    <!-- Durations -->
+    <plurals name="duration_minutes">
+        <item quantity="one">%1$d min</item>
+        <item quantity="other">%1$d min</item>
+    </plurals>
+    <string name="duration_hours_minutes">%1$d h %2$d min</string>
+    <string name="unit_minutes_short">%1$d min</string>
+    <string name="unit_seconds_short">%1$d sec</string>
+
+    <!-- Home -->
+    <string name="home_today">Today</string>
+    <string name="home_calls_taken">Calls taken</string>
+    <string name="home_talk_time">Talk time</string>
+    <string name="home_calls_blocked">Calls blocked</string>
+    <string name="home_minutes_saved">Minutes saved</string>
+    <string name="home_active_now">Active now</string>
+    <string name="home_numbers_today">Numbers used today</string>
+    <string name="home_no_numbers">No calls yet today.</string>
+    <string name="home_number_detail">%1$d answered · %2$s · %3$d blocked</string>
+    <string name="home_setup_title">Setup not finished</string>
+    <string name="home_setup_body">CallGalli must be your default phone app and call screening app to time and block calls.</string>
+
+    <!-- Contacts & Rules -->
+    <string name="contacts_search">Search name or number</string>
+    <string name="contacts_long_press_hint">Long-press a contact to reset today\'s count.</string>
+    <string name="contacts_always_allow">Always allow</string>
+    <string name="contacts_permission_title">See your contacts</string>
+    <string name="contacts_permission_body">Allow contacts so you can see names and set rules for people.</string>
+    <string name="contacts_empty_title">Nothing found</string>
+    <string name="contacts_empty_body">Try a different name or number.</string>
+    <string name="contacts_reset">Reset</string>
+    <string name="contacts_reset_title">Reset for today?</string>
+    <string name="contacts_reset_body">%1$s will be back to Fresh for today. Their next call gets the full first-call time.</string>
+
+    <!-- Blocked Log & history -->
+    <string name="blocked_intro">Calls rejected today because the number reached its limit.</string>
+    <string name="blocked_empty_title">No blocked calls today</string>
+    <string name="blocked_empty_body">When a number calls a third time today, it will show here.</string>
+    <plurals name="blocked_count">
+        <item quantity="one">Blocked %1$d time</item>
+        <item quantity="other">Blocked %1$d times</item>
+    </plurals>
+    <string name="blocked_last_at">last at %1$s</string>
+    <string name="blocked_see_history">See 7-day history</string>
+    <string name="history_title">History</string>
+    <string name="history_last_7_days">Last 7 days</string>
+    <string name="history_day_line">%1$d answered · %2$s talk · %3$d blocked</string>
+    <string name="history_calls">Calls</string>
+    <string name="outcome_ended_by_limit">Ended by limit</string>
+    <string name="outcome_blocked_by_limit">Blocked by limit</string>
+    <string name="outcome_not_connected">Not answered</string>
+    <string name="outcome_interrupted">Cut off (phone restarted)</string>
+    <string name="outcome_in_progress">On call now</string>
+
+    <!-- Always Allowed -->
+    <string name="allowed_intro">These numbers are never timed or blocked.</string>
+    <string name="allowed_emergency_title">Emergency numbers (always allowed)</string>
+    <string name="allowed_locked">Locked</string>
+    <string name="allowed_your_list">Your always-allowed people</string>
+    <string name="allowed_empty">Add family, your doctor, bank or delivery numbers here.</string>
+    <string name="allowed_pick_contact">Pick from contacts</string>
+    <string name="allowed_add_number">Type a number</string>
+    <string name="allowed_remove_title">Remove from always allowed?</string>
+    <string name="allowed_remove_body">Calls with %1$s will be timed again.</string>
+    <string name="emergency_112">All emergencies</string>
+    <string name="emergency_100">Police</string>
+    <string name="emergency_101">Fire</string>
+    <string name="emergency_102">Ambulance</string>
+    <string name="emergency_108">Emergency ambulance</string>
+    <string name="field_name">Name (optional)</string>
+    <string name="field_number">Phone number</string>
+    <string name="error_number">Please type a phone number.</string>
+
+    <!-- Settings -->
+    <string name="settings_limits">Call limits</string>
+    <string name="settings_first_call">First call</string>
+    <string name="settings_repeat_call">Repeat call</string>
+    <string name="settings_limits_hint">After the repeat call, that number is blocked until the reset time.</string>
+    <string name="settings_reset_time">Reset time</string>
+    <string name="settings_reset_at">Counts reset at</string>
+    <string name="settings_warnings">Warnings before the call ends</string>
+    <string name="settings_first_warning">First warning</string>
+    <string name="settings_second_warning">Second warning</string>
+    <string name="settings_appearance">Appearance</string>
+    <string name="theme_system">Same as phone</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
+    <string name="settings_language">Language</string>
+    <string name="settings_language_value">English</string>
+    <string name="settings_phone_setup">Phone setup</string>
+    <string name="setup_default_phone_app">Default phone app</string>
+    <string name="setup_call_screening">Call screening</string>
+    <string name="settings_clear_all">Clear all data</string>
+    <string name="settings_clear_all_title">Clear all data?</string>
+    <string name="settings_clear_all_body">This deletes all call counts, the blocked log, your always-allowed list and settings. It cannot be undone.</string>
+    <string name="settings_clear_all_confirm">Delete everything</string>
+
+    <!-- Battery -->
+    <string name="battery_title">Battery settings</string>
+    <string name="battery_body">Your phone may stop CallGalli in the background, so calls might not be cut on time. Allow CallGalli to run without battery limits.</string>
+    <string name="battery_saver_off">Battery saver is off</string>
+    <string name="battery_unrestricted">No battery limits for CallGalli</string>
+    <string name="battery_hint_xiaomi">On Xiaomi, Redmi and Poco phones: turn on Autostart for CallGalli and set Battery saver to \"No restrictions\".</string>
+    <string name="battery_hint_samsung">On Samsung phones: open Battery, then set CallGalli to \"Unrestricted\" and remove it from Sleeping apps.</string>
+    <string name="battery_hint_oppo">On Oppo, Realme and OnePlus phones: allow Auto launch and turn off battery optimisation for CallGalli.</string>
+    <string name="battery_hint_vivo">On Vivo and iQOO phones: allow Background running and Auto-start for CallGalli.</string>
+
+    <!-- Onboarding -->
+    <string name="onb1_title">Keep calls short</string>
+    <string name="onb1_body">CallGalli puts a time limit on calls, for each phone number:</string>
+    <string name="onb1_point1">First call of the day: ends after 10 minutes.</string>
+    <string name="onb1_point2">Second call: ends after 5 minutes.</string>
+    <string name="onb1_point3">More calls that day are rejected until midnight. Emergency numbers and people you choose are never limited.</string>
+    <string name="onb2_title">Make CallGalli your phone app</string>
+    <string name="onb2_body">To end a call when time is up, CallGalli must be your default phone app. It shows incoming calls and the call screen.</string>
+    <string name="onb2_screening_body">Call screening lets CallGalli reject a number that has used up today\'s calls, before your phone rings.</string>
+    <string name="onb3_title">Names and calls</string>
+    <string name="onb3_contacts_body">Contacts: so you see \"Ravi\" instead of a number, and can pick always-allowed people.</string>
+    <string name="onb3_phone_body">Phone: so CallGalli can see calls and place calls from its dial pad.</string>
+    <string name="onb4_title">Alerts</string>
+    <string name="onb4_body">Notifications: to show incoming calls, the time left, and when a call is ended by the limit.</string>
+    <string name="onb4_battery_body">Some phones stop apps to save battery. Allow CallGalli to run without battery limits so the timer is always on time.</string>
+    <string name="perm_contacts">Contacts</string>
+    <string name="perm_phone_state">Phone</string>
+    <string name="perm_notifications">Notifications</string>
+
+    <!-- Dial pad -->
+    <string name="dialer_title">Dial pad</string>
+    <string name="dialer_hint">Enter number</string>
+    <string name="dialer_blocked_title">Limit reached for today</string>
+    <string name="dialer_blocked_body">You have already had 2 calls with %1$s today. If you call, it will still end at the repeat-call limit.</string>
+    <string name="dialer_call_anyway">Call anyway</string>
+
+    <!-- In-call -->
+    <string name="incall_incoming">Incoming call</string>
+    <string name="incall_calling">Calling…</string>
+    <string name="incall_on_hold">On hold</string>
+    <string name="incall_ending">Ending…</string>
+    <string name="incall_swap">Swap</string>
+    <string name="incall_untimed">No time limit</string>
+    <string name="incall_emergency">Emergency call · no limit</string>
+    <string name="incall_always_allowed">Always allowed · no limit</string>
+
+    <!-- Notifications -->
+    <string name="channel_incoming">Incoming calls</string>
+    <string name="channel_ongoing">Call timer</string>
+    <string name="channel_alerts">Limit alerts</string>
+    <string name="notif_watching_calls">Watching call time</string>
+    <string name="notif_time_left_running">Time left on this call</string>
+    <string name="notif_paused_on_hold">%1$s left · paused on hold</string>
+</resources>
