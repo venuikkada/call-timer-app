@@ -78,20 +78,22 @@ class ScreenshotTest {
     )
 
     @Composable
-    private fun Home(call: InCallState) = HomeContent(
+    private fun Home(call: InCallState, enabled: Boolean = true) = HomeContent(
         contentPadding = pad,
         summary = TodaySummary(callsTaken = 4, talkMillis = 31 * 60_000L, callsBlocked = 3, minutesSaved = 15),
         numbers = numbers,
         inCall = call,
-        settings = AppSettings(),
+        settings = AppSettings(enabled = enabled),
         steps = steps,
         canEndCall = true,
         onHangUp = {},
+        onSetEnabled = {},
         onOpenNumber = {},
     )
 
     @Test fun homeDark() = shot("home_dark", true) { Home(InCallState()) }
     @Test fun homeLight() = shot("home_light", false) { Home(InCallState()) }
+    @Test fun homeOff() = shot("home_off_light", false) { Home(InCallState(), enabled = false) }
     @Test fun homeActiveCall() = shot("home_active_call_dark", true) { Home(activeCall) }
 
     @Test fun blockedLog() {

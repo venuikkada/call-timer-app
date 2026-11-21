@@ -119,7 +119,7 @@ class CallMonitor(
 
     /** NEW_OUTGOING_CALL: the number the user just dialled in their phone app. */
     fun onOutgoingNumber(raw: String?) {
-        if (raw.isNullOrBlank()) return
+        if (raw.isNullOrBlank() || !settings.current.enabled) return
         outgoingRaw = raw
         outgoingAt = System.currentTimeMillis()
     }
@@ -132,6 +132,7 @@ class CallMonitor(
     /** PHONE_STATE broadcast. It can arrive twice per change (with and without the number). */
     fun onPhoneState(newState: String?, incomingRaw: String?) {
         newState ?: return
+        if (!settings.current.enabled) return
         val previous = phoneState
         phoneState = newState
         when (newState) {
@@ -177,6 +178,16 @@ class CallMonitor(
         }
         outgoingRaw = null
         startCall(Active(PhoneNumbers.normalize(raw), raw, direction))
+    }
+
+    /**
+     * Switched off: stop everything now. A call in progress is NOT ended; it is just no
+     * longer timed (its talk time so far is saved).
+     */
+    fun stopAll() {
+        phoneState = TelephonyManager.EXTRA_STATE_IDLE
+        outgoingRaw = null
+        onIdle()
     }
 
     private fun onIdle() {
@@ -245,7 +256,7 @@ class CallMonitor(
         if (initialised) return
         initialised = true
         scope.launch {
-            if (isInCall()) {
+            if (settings.current.enabled && isInCall()) {
                 val saved = repository.findLatestOpenConnectedSession()
                 if (saved != null && active == null) {
                     phoneState = TelephonyManager.EXTRA_STATE_OFFHOOK

@@ -8,6 +8,8 @@ import com.callgalli.data.ContactsRepository
 import com.callgalli.data.SettingsStore
 import com.callgalli.telecom.CallNotifications
 import com.callgalli.telecom.CallMonitor
+import com.callgalli.telecom.CallMonitorService
+import android.content.Intent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -21,6 +23,18 @@ class AppContainer(context: Context) {
     val contacts = ContactsRepository(context)
     val notifications = CallNotifications(context)
     val callMonitor = CallMonitor(context, repository, contacts, settings, notifications)
+    private val app = context.applicationContext
+
+    /** The main On/Off switch. */
+    fun setTimerEnabled(on: Boolean) {
+        settings.setEnabled(on)
+        if (on) {
+            CallMonitorService.start(app)
+        } else {
+            callMonitor.stopAll()
+            app.stopService(Intent(app, CallMonitorService::class.java))
+        }
+    }
 }
 
 class CallGalliApp : Application() {

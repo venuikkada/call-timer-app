@@ -23,6 +23,7 @@ class CallActionReceiver : BroadcastReceiver() {
  */
 class PhoneEventReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
+        if (!context.container.settings.current.enabled) return // switched off
         CallMonitorService.dispatchPhoneIntent(context, intent)
         CallMonitorService.start(context)
     }
@@ -32,6 +33,7 @@ class PhoneEventReceiver : BroadcastReceiver() {
 class BootReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action != Intent.ACTION_BOOT_COMPLETED && intent.action != Intent.ACTION_MY_PACKAGE_REPLACED) return
-        if (context.container.settings.current.onboardingDone) CallMonitorService.start(context)
+        val s = context.container.settings.current
+        if (s.onboardingDone && s.enabled) CallMonitorService.start(context)
     }
 }

@@ -23,6 +23,10 @@ class CallGalliScreeningService : CallScreeningService() {
         val c = container
         val raw = callDetails.handle?.schemeSpecificPart
         val number = PhoneNumbers.normalize(raw)
+        if (!c.settings.current.enabled) {
+            respondToCall(callDetails, allow()) // switched off: never block
+            return
+        }
         if (callDetails.callDirection != Call.Details.DIRECTION_INCOMING) {
             // Outgoing: never blocked here, but it tells the watcher which number was dialled.
             c.callMonitor.onOutgoingNumber(raw)

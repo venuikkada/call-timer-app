@@ -69,6 +69,7 @@ import com.callgalli.ui.AppViewModelFactory
 import com.callgalli.ui.SettingsViewModel
 import com.callgalli.ui.components.BigButton
 import com.callgalli.ui.components.ConfirmDialog
+import com.callgalli.ui.components.PowerSwitch
 import com.callgalli.ui.components.SectionCard
 import com.callgalli.ui.components.resetLabel
 import com.callgalli.ui.theme.LocalStatusColors
@@ -114,6 +115,7 @@ fun SettingsScreen(
         ),
         verticalArrangement = Arrangement.spacedBy(Spacing.m),
     ) {
+        item { PowerSwitch(settings.enabled, vm::setEnabled) }
         item {
             SectionCard(title = stringResource(R.string.settings_limits), icon = Icons.Outlined.Timer) {
                 Stepper(

@@ -49,6 +49,13 @@ class CallMonitorService : Service() {
             stopSelf()
             return START_NOT_STICKY
         }
+        if (!c.settings.current.enabled) {
+            // Switched off between the start request and now: Android still needs startForeground
+            // above, then we leave straight away.
+            ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
+            stopSelf()
+            return START_NOT_STICKY
+        }
         if (!started) {
             started = true
             c.callMonitor.overlay = TimerOverlay(applicationContext)
@@ -96,6 +103,7 @@ class CallMonitorService : Service() {
 
         /** Shared by the service's receiver and the manifest receiver (whichever Android delivers). */
         fun dispatchPhoneIntent(context: Context, intent: Intent) {
+            if (!context.container.settings.current.enabled) return
             val monitor = context.container.callMonitor
             when (intent.action) {
                 TelephonyManager.ACTION_PHONE_STATE_CHANGED -> {

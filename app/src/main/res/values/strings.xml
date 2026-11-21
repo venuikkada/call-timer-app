@@ -82,6 +82,14 @@
     <string name="greeting_afternoon">Good afternoon</string>
     <string name="greeting_evening">Good evening</string>
     <string name="hero_watching">Watching calls</string>
+    <string name="hero_off">Off</string>
+    <string name="power_on_title">Call Timer is ON</string>
+    <string name="power_on_sub">Limits are active</string>
+    <string name="power_off_title">Call Timer is OFF</string>
+    <string name="power_off_sub">No timing or blocking. Tap to turn on.</string>
+    <string name="power_confirm_title">Turn off Call Timer?</string>
+    <string name="power_confirm_body">Calls will not be timed or blocked until you turn it on again. A call in progress keeps going without a limit. Today\'s counts are kept.</string>
+    <string name="power_confirm_action">Turn off</string>
     <string name="hero_setup_needed">Setup needed</string>
     <string name="hero_summary">Today: %1$d calls · %2$s talk time</string>
     <string name="hero_rule_first">1st: %1$d min</string>

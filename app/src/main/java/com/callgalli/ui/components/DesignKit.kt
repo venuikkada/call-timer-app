@@ -47,8 +47,9 @@ import com.callgalli.ui.theme.Spacing
 
 /** Teal gradient header used at the top of Home and onboarding. */
 @Composable
-fun HeroCard(modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
-    val gradient = Brush.linearGradient(listOf(Color(0xFF0B6E69), Color(0xFF0E8F7E), Color(0xFF12A38A)))
+fun HeroCard(modifier: Modifier = Modifier, muted: Boolean = false, content: @Composable ColumnScope.() -> Unit) {
+    val gradient = if (muted) Brush.linearGradient(listOf(Color(0xFF3E4A49), Color(0xFF55615F), Color(0xFF66716F)))
+    else Brush.linearGradient(listOf(Color(0xFF0B6E69), Color(0xFF0E8F7E), Color(0xFF12A38A)))
     Box(
         modifier
             .fillMaxWidth()

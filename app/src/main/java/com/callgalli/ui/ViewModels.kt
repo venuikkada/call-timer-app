@@ -43,6 +43,7 @@ class HomeViewModel(private val c: AppContainer) : ViewModel() {
     val numbers: StateFlow<List<NumberToday>> = c.repository.numbersToday.state(this, emptyList())
     val inCall: StateFlow<InCallState> = c.callMonitor.state
     fun hangUp() = c.callMonitor.hangUp()
+    fun setEnabled(on: Boolean) = c.setTimerEnabled(on)
     val settings = c.settings.settings
 }
 
@@ -116,4 +117,5 @@ class SettingsViewModel(private val c: AppContainer) : ViewModel() {
     fun updateRules(transform: (RuleSettings) -> RuleSettings) = c.settings.updateRules(transform)
     fun setTheme(mode: com.callgalli.data.ThemeMode) = c.settings.setTheme(mode)
     fun clearAll() = viewModelScope.launch { c.repository.clearAllData() }
+    fun setEnabled(on: Boolean) = c.setTimerEnabled(on)
 }

@@ -62,7 +62,13 @@ If Android blocks the **Call logs** permission with "Restricted setting":
 ### Battery (important)
 In Call Timer open *Settings → Battery settings* and follow the hint for your phone (Autostart on, battery "No restrictions" / "Unrestricted"). Without this, some phones stop background apps and a call might not be cut on time.
 
-Call Timer shows a small silent "Watching call time" notification all the time. That keeps it alive; you can't swipe it away.
+Call Timer shows a small silent "Watching call time" notification while it is on. That keeps it alive; you can't swipe it away.
+
+### On / Off switch
+Home (top card) and Settings have a **Call Timer is ON / OFF** switch.
+- **Off:** no timing, no blocking, no warnings, and the background notification goes away. A call in progress keeps going with no limit. Today's counts are kept.
+- **On:** everything starts again straight away, and after a phone restart too.
+Turning it off asks "Are you sure?" once, because the limits are there to help you.
 
 ---
 

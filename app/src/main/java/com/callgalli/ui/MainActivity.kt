@@ -65,7 +65,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         val c = container
         // Start (or keep) the always-on call watcher. Starting from the foreground is always allowed.
-        if (c.settings.current.onboardingDone) CallMonitorService.start(this)
+        if (c.settings.current.onboardingDone && c.settings.current.enabled) CallMonitorService.start(this)
 
         setContent {
             val settings by c.settings.settings.collectAsStateWithLifecycle()

@@ -12,6 +12,8 @@ data class AppSettings(
     val rules: RuleSettings = RuleSettings(),
     val theme: ThemeMode = ThemeMode.SYSTEM,
     val onboardingDone: Boolean = false,
+    /** Main On/Off switch. Off = no timing, no blocking, no background watcher. */
+    val enabled: Boolean = true,
 )
 
 /**
@@ -36,7 +38,7 @@ class SettingsStore(context: Context) {
             )
         }.getOrDefault(defaults)
         val theme = runCatching { ThemeMode.valueOf(prefs.getString(KEY_THEME, null) ?: "") }.getOrDefault(ThemeMode.SYSTEM)
-        return AppSettings(rules, theme, prefs.getBoolean(KEY_ONBOARDED, false))
+        return AppSettings(rules, theme, prefs.getBoolean(KEY_ONBOARDED, false), prefs.getBoolean(KEY_ENABLED, true))
     }
 
     fun updateRules(transform: (RuleSettings) -> RuleSettings) {
@@ -49,6 +51,11 @@ class SettingsStore(context: Context) {
             .putInt(KEY_WARN2, next.secondWarningSeconds)
             .apply()
         _settings.value = current.copy(rules = next)
+    }
+
+    fun setEnabled(enabled: Boolean) {
+        prefs.edit().putBoolean(KEY_ENABLED, enabled).apply()
+        _settings.value = current.copy(enabled = enabled)
     }
 
     fun setTheme(theme: ThemeMode) {
@@ -75,5 +82,6 @@ class SettingsStore(context: Context) {
         const val KEY_WARN2 = "second_warning_seconds"
         const val KEY_THEME = "theme"
         const val KEY_ONBOARDED = "onboarding_done"
+        const val KEY_ENABLED = "timer_enabled"
     }
 }

@@ -75,6 +75,7 @@ import com.callgalli.ui.components.Avatar
 import com.callgalli.ui.components.CountdownRing
 import com.callgalli.ui.components.HeroCard
 import com.callgalli.ui.components.ListRow
+import com.callgalli.ui.components.PowerSwitch
 import com.callgalli.ui.components.SectionTitle
 import com.callgalli.ui.components.SoftCard
 import com.callgalli.ui.components.StatCard
@@ -144,6 +145,7 @@ fun HomeScreen(
         steps = steps,
         canEndCall = remember(refresh) { CallEnder.canEnd(context) },
         onHangUp = vm::hangUp,
+        onSetEnabled = vm::setEnabled,
         onOpenNumber = onOpenNumber,
     )
 }
@@ -159,6 +161,7 @@ fun HomeContent(
     steps: List<SetupStep>,
     canEndCall: Boolean,
     onHangUp: () -> Unit,
+    onSetEnabled: (Boolean) -> Unit,
     onOpenNumber: (String) -> Unit,
 ) {
     val colors = LocalStatusColors.current
@@ -171,11 +174,12 @@ fun HomeContent(
         ),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        item { Hero(summary, settings, ready) }
+        item { Hero(summary, settings, ready, onSetEnabled) }
 
-        inCall.call?.let { call -> item { ActiveCallCard(call, inCall, canEndCall, onHangUp) } }
-
-        if (steps.any { !it.done }) item { SetupChecklist(steps) }
+        if (settings.enabled) {
+            inCall.call?.let { call -> item { ActiveCallCard(call, inCall, canEndCall, onHangUp) } }
+            if (steps.any { !it.done }) item { SetupChecklist(steps) }
+        }
 
         item {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -211,21 +215,22 @@ fun HomeContent(
 }
 
 @Composable
-private fun Hero(summary: TodaySummary, settings: AppSettings, ready: Boolean) {
+private fun Hero(summary: TodaySummary, settings: AppSettings, ready: Boolean, onSetEnabled: (Boolean) -> Unit) {
+    val on = settings.enabled
     val greeting = when (Calendar.getInstance().get(Calendar.HOUR_OF_DAY)) {
         in 5..11 -> R.string.greeting_morning
         in 12..16 -> R.string.greeting_afternoon
         else -> R.string.greeting_evening
     }
-    HeroCard {
+    HeroCard(muted = !on) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(stringResource(greeting), style = MaterialTheme.typography.titleMedium, color = Color.White.copy(alpha = 0.85f), modifier = Modifier.weight(1f))
             Surface(color = Color.White.copy(alpha = 0.18f), shape = RoundedCornerShape(50)) {
                 Row(Modifier.padding(horizontal = 12.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Box(Modifier.size(8.dp).clip(CircleShape).background(if (ready) Color(0xFF9CF2B0) else Color(0xFFFFD36E)))
+                    Box(Modifier.size(8.dp).clip(CircleShape).background(if (!on) Color(0xFFBFC8C6) else if (ready) Color(0xFF9CF2B0) else Color(0xFFFFD36E)))
                     Spacer(Modifier.width(6.dp))
                     Text(
-                        stringResource(if (ready) R.string.hero_watching else R.string.hero_setup_needed),
+                        stringResource(if (!on) R.string.hero_off else if (ready) R.string.hero_watching else R.string.hero_setup_needed),
                         style = MaterialTheme.typography.labelMedium, color = Color.White,
                     )
                 }
@@ -241,6 +246,8 @@ private fun Hero(summary: TodaySummary, settings: AppSettings, ready: Boolean) {
             HeroChip(stringResource(R.string.hero_rule_repeat, settings.rules.repeatCallMinutes))
             HeroChip(stringResource(R.string.hero_rule_reset, resetLabel(settings.rules.resetMinuteOfDay)))
         }
+        Spacer(Modifier.size(4.dp))
+        PowerSwitch(on, onSetEnabled, onHero = true)
     }
 }
 
